@@ -1,0 +1,514 @@
+/* ==========================================================================
+   Bricks Starter Framework — component layer on top of Automatic.css
+   ==========================================================================
+   Where to paste: Bricks > Settings > Custom Code > Custom CSS
+                   (or a child-theme stylesheet enqueued after ACSS).
+   Never paste this onto the builder canvas; the HTML-to-Bricks converter
+   would turn every class into a global class and the :root block into
+   Bricks Global Variables.
+
+   Before use:
+   1. Find and replace `x-` with the client prefix (e.g. `gg-`).
+   2. Confirm the ACSS palette names below are enabled on this install
+      (primary, base, action are always present; the rest are configurable).
+   3. Confirm breakpoints match Bricks > Settings > Breakpoints
+      (defaults used here: 991 / 767 / 478).
+
+   Rules this file follows:
+   - No hex codes. No px/rem type sizes. No hardcoded spacing.
+   - ACSS variables only: --space-*, --text-*, --h1..--h6, --radius-*,
+     --primary, --base*, --action, --text, --gutter, --content-width,
+     --grid-*, --content-gap, --grid-gap, --card-gap, --section-space-*.
+   - Only prefixed classes. Never restyles .section, .container, .grid--*.
+   ========================================================================== */
+
+
+/* --------------------------------------------------------------------------
+   0. Component-only tokens
+   --------------------------------------------------------------------------
+   These are NOT design tokens. ACSS owns those. These are aliases that let a
+   component swap one value in one place. Keep this block tiny. Every value
+   must resolve to an ACSS variable or a structural literal.
+   -------------------------------------------------------------------------- */
+:root {
+  --x-card-bg:          var(--base-ultra-light);
+  --x-on-primary:       var(--white, #fff);   /* the ONE hex in this file: fallback for installs without --white */
+  --x-card-border:      1px solid var(--base-light);
+  --x-card-radius:      var(--radius-m);
+  --x-card-pad:         var(--space-m);
+  --x-icon-size:        var(--text-xxl);
+  --x-media-ratio:      16 / 9;
+  --x-transition:       160ms ease;
+}
+
+
+/* --------------------------------------------------------------------------
+   1. Layout primitives ACSS does not cover
+   -------------------------------------------------------------------------- */
+
+/* Vertical rhythm between direct children. Use instead of margin on each child. */
+.x-flow > * + * {
+  margin-block-start: var(--flow-space, var(--content-gap));
+}
+
+/* Inline cluster: tags, meta rows, button groups. Wraps naturally. */
+.x-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-s);
+  align-items: center;
+}
+
+/* Sidebar + main that collapses without a media query. */
+.x-with-sidebar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--grid-gap);
+}
+.x-with-sidebar > :first-child {
+  flex-basis: 20rem;
+  flex-grow: 1;
+}
+.x-with-sidebar > :last-child {
+  flex-basis: 0;
+  flex-grow: 999;
+  min-inline-size: 60%;
+}
+
+/* Auto-fit card grid when column count should follow available width. */
+.x-auto-grid {
+  display: grid;
+  gap: var(--grid-gap);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--x-auto-grid-min, 18rem)), 1fr));
+}
+
+/* Screen-reader only. */
+.x-visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+
+/* --------------------------------------------------------------------------
+   2. Section header (eyebrow + heading + intro), used above most grids
+   -------------------------------------------------------------------------- */
+.x-section-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  max-inline-size: 65ch;
+}
+.x-section-header--center {
+  align-items: center;
+  text-align: center;
+  margin-inline: auto;
+}
+
+.x-eyebrow {
+  font-size: var(--text-s);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+
+/* --------------------------------------------------------------------------
+   3. Card family
+   -------------------------------------------------------------------------- */
+.x-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-gap, var(--space-s));
+  padding: var(--x-card-pad);
+  background: var(--x-card-bg);
+  border: var(--x-card-border);
+  border-radius: var(--x-card-radius);
+  transition: transform var(--x-transition), box-shadow var(--x-transition);
+}
+.x-card--elevated {
+  border: 0;
+  box-shadow: var(--box-shadow-m, 0 0.5rem 1.5rem rgb(0 0 0 / 0.08));
+}
+.x-card--featured {
+  background: var(--primary);
+  color: var(--x-on-primary);
+}
+.x-card--featured :is(h1, h2, h3, h4, h5, h6, a) {
+  color: inherit;
+}
+.x-card__icon {
+  font-size: var(--x-icon-size);
+  line-height: 1;
+  color: var(--primary);
+}
+.x-card--featured .x-card__icon {
+  color: inherit;
+}
+.x-card__title {
+  font-size: var(--h4);
+  line-height: 1.2;
+}
+.x-card__body {
+  color: var(--text);
+}
+.x-card__footer {
+  margin-block-start: auto;
+  padding-block-start: var(--space-s);
+}
+
+/* Whole-card click target when the card contains one primary link. */
+.x-card--link {
+  position: relative;
+}
+.x-card--link .x-card__title a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+@media (hover: hover) {
+  .x-card--link:hover {
+    transform: translateY(-0.25rem);
+  }
+}
+
+
+/* --------------------------------------------------------------------------
+   4. Media frames
+   -------------------------------------------------------------------------- */
+.x-media {
+  display: block;
+  inline-size: 100%;
+  aspect-ratio: var(--x-media-ratio);
+  overflow: hidden;
+  border-radius: var(--radius-m);
+}
+.x-media > img,
+.x-media > video,
+.x-media > iframe {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+.x-media--square { --x-media-ratio: 1; }
+.x-media--portrait { --x-media-ratio: 4 / 5; }
+.x-media--round {
+  border-radius: 50%;
+  --x-media-ratio: 1;
+}
+
+
+/* --------------------------------------------------------------------------
+   5. Testimonial
+   -------------------------------------------------------------------------- */
+.x-testimonial {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
+  padding: var(--space-m);
+  background: var(--x-card-bg);
+  border-radius: var(--x-card-radius);
+}
+.x-testimonial__quote {
+  font-size: var(--text-l);
+  line-height: 1.4;
+}
+.x-testimonial__quote::before {
+  content: "\201C";
+  display: block;
+  font-size: var(--h1);
+  line-height: 0.6;
+  color: var(--primary);
+}
+.x-testimonial__author {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  margin-block-start: auto;
+}
+.x-testimonial__avatar {
+  inline-size: 3rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.x-testimonial__name {
+  font-weight: 600;
+}
+.x-testimonial__meta {
+  font-size: var(--text-s);
+  color: var(--base-dark);
+}
+
+
+/* --------------------------------------------------------------------------
+   6. FAQ (native details/summary or Bricks accordion wrapper)
+   -------------------------------------------------------------------------- */
+.x-faq {
+  display: flex;
+  flex-direction: column;
+  border-block-start: 1px solid var(--base-light);
+}
+.x-faq__item {
+  border-block-end: 1px solid var(--base-light);
+}
+.x-faq__question {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-s);
+  padding-block: var(--space-s);
+  font-size: var(--text-l);
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+.x-faq__question::-webkit-details-marker { display: none; }
+.x-faq__question::after {
+  content: "+";
+  flex: none;
+  font-size: var(--h4);
+  line-height: 1;
+  color: var(--primary);
+  transition: transform var(--x-transition);
+}
+.x-faq__item[open] .x-faq__question::after,
+.x-faq__item.is-open .x-faq__question::after {
+  transform: rotate(45deg);
+}
+.x-faq__answer {
+  padding-block-end: var(--space-m);
+  color: var(--text);
+}
+
+
+/* --------------------------------------------------------------------------
+   7. CTA band
+   -------------------------------------------------------------------------- */
+.x-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-m);
+  padding: var(--space-l);
+  background: var(--primary);
+  color: var(--x-on-primary);
+  border-radius: var(--radius-l);
+}
+.x-cta :is(h1, h2, h3, h4) {
+  color: inherit;
+}
+.x-cta__text {
+  max-inline-size: 50ch;
+}
+.x-cta__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-s);
+}
+
+
+/* --------------------------------------------------------------------------
+   8. Local SEO blocks
+   -------------------------------------------------------------------------- */
+
+/* Name / Address / Phone. Pair with schema.org markup via Bricks attributes. */
+.x-nap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  font-style: normal;
+}
+.x-nap__name {
+  font-weight: 600;
+}
+.x-nap__phone,
+.x-nap__email {
+  color: var(--action);
+  text-decoration: none;
+}
+.x-nap__phone:hover,
+.x-nap__email:hover {
+  text-decoration: underline;
+}
+
+/* Opening hours table. */
+.x-hours {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--space-xs) var(--space-m);
+  font-size: var(--text-s);
+}
+.x-hours__day {
+  font-weight: 600;
+}
+.x-hours__day--today,
+.x-hours__time--today {
+  color: var(--primary);
+}
+.x-hours__time--closed {
+  color: var(--base-dark);
+}
+
+/* Service area list. */
+.x-service-areas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-s);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.x-service-areas__item::after {
+  content: "\00B7";
+  margin-inline-start: var(--space-s);
+  color: var(--base-dark);
+}
+.x-service-areas__item:last-child::after {
+  content: none;
+}
+
+/* Map embed. */
+.x-map {
+  inline-size: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-m);
+  overflow: hidden;
+}
+.x-map iframe {
+  inline-size: 100%;
+  block-size: 100%;
+  border: 0;
+}
+
+/* Breadcrumbs. */
+.x-breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  font-size: var(--text-s);
+}
+.x-breadcrumbs__item + .x-breadcrumbs__item::before {
+  content: "/";
+  margin-inline-end: var(--space-xs);
+  color: var(--base-dark);
+}
+.x-breadcrumbs__item[aria-current="page"] {
+  color: var(--base-dark);
+}
+
+
+/* --------------------------------------------------------------------------
+   9. Badges and meta
+   -------------------------------------------------------------------------- */
+.x-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+  padding: 0.25em 0.75em;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  line-height: 1;
+  border-radius: 999px;
+  background: var(--primary-ultra-light, var(--base-ultra-light));
+  color: var(--primary);
+}
+.x-badge--action {
+  background: var(--action);
+  color: var(--x-on-primary);
+}
+
+.x-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-s);
+  font-size: var(--text-s);
+  color: var(--base-dark);
+}
+
+
+/* --------------------------------------------------------------------------
+   10. Icon list (checkmarks, feature bullets)
+   -------------------------------------------------------------------------- */
+.x-icon-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.x-icon-list__item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-s);
+}
+.x-icon-list__icon {
+  flex: none;
+  inline-size: 1.25em;
+  block-size: 1.25em;
+  margin-block-start: 0.1em;
+  color: var(--primary);
+}
+
+
+/* --------------------------------------------------------------------------
+   11. Accessibility and motion
+   -------------------------------------------------------------------------- */
+[class^="x-"]:focus-visible,
+[class*=" x-"]:focus-visible {
+  outline: 2px solid var(--action);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [class^="x-"],
+  [class*=" x-"] {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+
+/* --------------------------------------------------------------------------
+   12. Responsive adjustments (Bricks default breakpoints)
+   -------------------------------------------------------------------------- */
+@media (max-width: 991px) {
+  .x-cta {
+    padding: var(--space-m);
+  }
+}
+
+@media (max-width: 767px) {
+  .x-with-sidebar > :last-child {
+    min-inline-size: 100%;
+  }
+  .x-section-header--center {
+    text-align: start;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 478px) {
+  .x-card {
+    padding: var(--space-s);
+  }
+  .x-hours {
+    grid-template-columns: 1fr;
+    gap: var(--space-xs);
+  }
+  .x-hours__time {
+    margin-block-end: var(--space-xs);
+  }
+}
