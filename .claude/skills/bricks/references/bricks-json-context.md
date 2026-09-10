@@ -115,7 +115,7 @@ What it enforces, and at what severity:
 
 | Check | Severity | Why it's deterministic |
 |---|---|---|
-| Parses; envelope has `content`, `source`, `version` | error | Bricks rejects otherwise |
+| Parses; clipboard envelope has `content`, `source`, `version`, or template export has `type` + `header`/`footer`/`content` + `global_classes` | error | Bricks rejects otherwise |
 | Ids 6-char alphanumeric, unique | error | Bricks generates these; format is fixed |
 | Parent ↔ children agree both ways | error | One-way links render as orphans or vanish |
 | No nested `section` | error | Bricks structural rule |

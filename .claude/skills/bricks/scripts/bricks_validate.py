@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-bricks_validate.py — deterministic validator for Bricks Builder clipboard JSON.
+bricks_validate.py — deterministic validator for Bricks Builder clipboard JSON and template exports.
 
 Structural failures are ERRORS (exit 1). Convention failures are WARNINGS unless
 --strict promotes them. Bricks silently ignores unknown keys and silently skips
@@ -38,6 +38,7 @@ ID_RE = re.compile(r"^[a-zA-Z0-9]{6}$")
 DEFAULT_BREAKPOINTS = {"tablet_portrait", "mobile_landscape", "mobile_portrait"}
 DEFAULT_PSEUDOS = {"hover", "focus", "focus-visible", "active", "visited", "before", "after"}
 CLIPBOARD_SOURCE = "bricksCopiedElements"
+TEMPLATE_ELEMENT_KEYS = ("content", "header", "footer")   # template exports keep elements under the key matching `type`
 
 # Characters that break Bricks dynamic-tag fallbacks: the whole raw tag prints.
 BAD_FALLBACK_CHARS = {
@@ -196,10 +197,37 @@ def collect_acf_field_names(acf_export: Any) -> set[str]:
 # Checks                                                                      #
 # --------------------------------------------------------------------------- #
 
+def is_template_export(data: Any) -> bool:
+    """Bricks › Templates › Export shape: {name, title, type, header|footer|content, global_classes, ...}."""
+    return (isinstance(data, dict) and "type" in data and data.get("source") != CLIPBOARD_SOURCE
+            and any(isinstance(data.get(k), list) for k in TEMPLATE_ELEMENT_KEYS))
+
+
+def global_classes_of(data: dict) -> list:
+    """Clipboard JSON uses `globalClasses`; template exports use `global_classes`."""
+    gcs = data.get("globalClasses")
+    if gcs is None:
+        gcs = data.get("global_classes")
+    return gcs if isinstance(gcs, list) else []
+
+
 def check_envelope(data: Any, rep: Report) -> list[dict]:
     if not isinstance(data, dict):
         rep.error("ENVELOPE", "top level must be an object with a `content` array")
         return []
+    if is_template_export(data):
+        content: list = []
+        for key in TEMPLATE_ELEMENT_KEYS:
+            if isinstance(data.get(key), list):
+                content.extend(data[key])
+        if not content:
+            rep.error("ENVELOPE", "template export has no elements under `content`, `header`, or `footer`")
+        if not isinstance(data.get("type"), str) or not data["type"]:
+            rep.error("ENVELOPE", "template export `type` must be a non-empty string (header, footer, popup, section, ...)", "type")
+        for key in ("global_classes", "globalVariables"):
+            if key in data and not isinstance(data[key], list):
+                rep.error("ENVELOPE", f"`{key}` must be an array", key)
+        return [n for n in content if isinstance(n, dict)]
     content = data.get("content")
     if not isinstance(content, list):
         rep.error("ENVELOPE", "`content` missing or not an array")
@@ -214,7 +242,7 @@ def check_envelope(data: Any, rep: Report) -> list[dict]:
     return [n for n in content if isinstance(n, dict)] if content else []
 
 
-def check_tree(nodes: list[dict], rep: Report) -> dict[str, dict]:
+def check_tree(nodes: list[dict], rep: Report, root_must_be_section: bool = True) -> dict[str, dict]:
     by_id: dict[str, dict] = {}
     for i, n in enumerate(nodes):
         nid = n.get("id")
@@ -238,7 +266,7 @@ def check_tree(nodes: list[dict], rep: Report) -> dict[str, dict]:
         children = n.get("children") or []
 
         if parent in (0, "0", None):
-            if n.get("name") != "section":
+            if root_must_be_section and n.get("name") != "section":
                 rep.warn("ROOT_NOT_SECTION", f"root element is `{n.get('name')}`; root nodes are normally sections", nid)
         else:
             if not isinstance(parent, str) or parent not in by_id:
@@ -263,7 +291,7 @@ def check_tree(nodes: list[dict], rep: Report) -> dict[str, dict]:
 
 def check_settings(by_id: dict[str, dict], data: dict, rep: Report,
                    breakpoints: set[str], pseudos: set[str]) -> None:
-    global_classes = data.get("globalClasses") or []
+    global_classes = global_classes_of(data)
     gc_ids = {gc.get("id") for gc in global_classes if isinstance(gc, dict)}
 
     for nid, n in by_id.items():
@@ -331,8 +359,8 @@ def check_conventions(data: dict, by_id: dict[str, dict], rep: Report, *,
 
     # --- global class policy ---
     if no_global_classes:
-        if data.get("globalClasses"):
-            rep.warn("GLOBAL_CLASS_POLICY", "policy is _cssClasses-only but `globalClasses` is non-empty", "globalClasses")
+        if global_classes_of(data):
+            rep.warn("GLOBAL_CLASS_POLICY", "policy is _cssClasses-only but the global class list is non-empty", "globalClasses")
         for nid, n in by_id.items():
             if (n.get("settings") or {}).get("_cssGlobalClasses"):
                 rep.warn("GLOBAL_CLASS_POLICY", "policy is _cssClasses-only but element uses `_cssGlobalClasses`", nid)
@@ -341,7 +369,7 @@ def check_conventions(data: dict, by_id: dict[str, dict], rep: Report, *,
     for nid in by_id:
         if nid in existing_ids:
             rep.error("ID_COLLISION", f"element id {nid} already exists in the site export", nid)
-    for i, gc in enumerate(data.get("globalClasses") or []):
+    for i, gc in enumerate(global_classes_of(data)):
         if not isinstance(gc, dict):
             continue
         gid, gname = gc.get("id"), gc.get("name")
@@ -391,7 +419,9 @@ def main(argv: list[str] | None = None) -> int:
     pseudos = {p.strip() for p in args.pseudos.split(",") if p.strip()}
 
     nodes = check_envelope(data, rep)
-    by_id = check_tree(nodes, rep) if isinstance(data, dict) else {}
+    # popup / section templates legitimately root on a block or container
+    root_section = not (is_template_export(data) and data.get("type") in ("popup", "section"))
+    by_id = check_tree(nodes, rep, root_must_be_section=root_section) if isinstance(data, dict) else {}
     if isinstance(data, dict):
         check_settings(by_id, data, rep, breakpoints, pseudos)
 

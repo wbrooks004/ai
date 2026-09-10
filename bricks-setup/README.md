@@ -27,5 +27,5 @@ Four ready-to-use files for building WordPress sites with **Bricks Builder + Aut
 
 | Skill | What it does |
 |-------|--------------|
-| `bricks-json-validate` | Deterministic validator for Bricks clipboard JSON (`scripts/bricks_validate.py`) plus read/write discipline for site and ACF exports. Root `CLAUDE.md` requires it to pass before any JSON is delivered. |
+| `bricks` | The merged Bricks skill: JSON authoring (verified against 2.3.6), the HTML + CSS paste path with the ACSS allowlist, and the validator (`scripts/bricks_validate.py`) that root `CLAUDE.md` requires to pass before any JSON is delivered. |
 | `modern-web-standards` | ACSS 4.x alignment and a dated CSS/HTML feature-tier table. Governs the CSS inside custom classes and `_cssCustom`. Note: the files in this folder were written against ACSS 3.x; 3.x and 4.x are not compatible. |

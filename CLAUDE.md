@@ -6,7 +6,8 @@ and starter files live in `bricks-setup/`.
 
 ## Bricks Builder JSON
 
-- Any task that reads or writes Bricks JSON: load the `bricks` skill, then read
+- Any task that builds a section, page, or template for a Bricks site, in JSON or as
+  HTML + CSS paste: load the `bricks` skill, then read
   `PROJECT.md › Bricks` for site facts. Do not ask for a fact PROJECT.md already
   answers (rem base, versions, class policy, export paths). If there is no
   PROJECT.md, ask for rem base, class prefix, Bricks version, and ACSS version once.
@@ -15,7 +16,7 @@ and starter files live in `bricks-setup/`.
   Never generate an id that exists in the export. Never reference an ACF field
   that is not in the export.
 - Before delivering any Bricks JSON, run the validator
-  (`.claude/skills/bricks-json-validate/scripts/bricks_validate.py`) with the
+  (`.claude/skills/bricks/scripts/bricks_validate.py`) with the
   exports and flags from PROJECT.md, and fix every ERROR. Never deliver JSON that
   has not passed. Paste the validator's last line into the response.
 - Where PROJECT.md contradicts a skill's defaults, PROJECT.md wins. Where the

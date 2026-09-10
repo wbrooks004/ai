@@ -1,8 +1,8 @@
 # ACSS 4.x alignment
 
 What Automatic.css 4.x changed, what each change means for the CSS Claude
-writes, and which parts of the existing `fms-bricks-html` allowlist
-(`references/acss-conventions.md`) it puts in doubt.
+writes, and which parts of the ACSS allowlist in the `bricks` skill
+(`bricks/references/acss-conventions.md`) it puts in doubt.
 
 Source: docs.automaticcss.com "What's New in ACSS 4.x", "Modern Color Scheme
 Workflow", "Website Width & Breakpoints" — all last updated **2026-08-07**.
@@ -178,7 +178,7 @@ memory is a v3-ism and will not resolve.
 | Skill | Governs | Adjusted by ACSS 4 |
 |---|---|---|
 | `bricks` | JSON structure, element catalog, value shapes | Breakpoint keys may be custom after ACSS mapping; `xxl` → `2xl` in any variable references |
-| `fms-bricks-html` | Paste markup, class naming, allowlist | Utility entries unconfirmed until re-cut; `@media` example replaced; recipes never emitted |
+| `bricks` (HTML paste path) | Paste markup, class naming, allowlist | Utility entries unconfirmed until re-cut; `@media` example replaced; recipes never emitted |
 | `modern-web-standards` | The CSS inside custom classes | Container queries default; `light-dark()` accepted; `@layer` awareness; OKLCH mixing |
 
 ---

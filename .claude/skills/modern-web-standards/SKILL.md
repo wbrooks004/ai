@@ -1,6 +1,6 @@
 ---
 name: modern-web-standards
-description: Current HTML and CSS practice for sites built on Automatic.css 4.x — which CSS and HTML features are safe to ship today, which need a fallback, which to refuse, and how ACSS 4's variable-first, breakpoint-free, cascade-layered architecture changes what "good CSS" means. Use whenever writing, reviewing, refactoring or auditing HTML/CSS, custom classes, `_cssCustom` in Bricks JSON, or `<style>` blocks for paste — even when the user only says "make it responsive", "add dark mode", "style this card", or "is this CSS any good". Pair with the `bricks` and `fms-bricks-html` skills; this one governs the CSS inside the classes they create.
+description: Current HTML and CSS practice for sites built on Automatic.css 4.x — which CSS and HTML features are safe to ship today, which need a fallback, which to refuse, and how ACSS 4's variable-first, breakpoint-free, cascade-layered architecture changes what "good CSS" means. Use whenever writing, reviewing, refactoring or auditing HTML/CSS, custom classes, `_cssCustom` in Bricks JSON, or `<style>` blocks for paste — even when the user only says "make it responsive", "add dark mode", "style this card", or "is this CSS any good". Pair with the `bricks` skill; this one governs the CSS inside the classes it creates.
 ---
 
 # Modern web standards — ACSS 4.x sites
