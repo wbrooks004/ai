@@ -22,3 +22,10 @@ Four ready-to-use files for building WordPress sites with **Bricks Builder + Aut
 - ACSS v3.x. Utility class names are user-configurable, so the files reference **variables** more than classes.
 - Default Bricks breakpoints: 991 / 767 / 478. Change the media queries if the project uses custom breakpoints.
 - rem base is 16px unless the project says otherwise. Every file asks for confirmation before using rem.
+
+## Related project skills (in `.claude/skills/`)
+
+| Skill | What it does |
+|-------|--------------|
+| `bricks-json-validate` | Deterministic validator for Bricks clipboard JSON (`scripts/bricks_validate.py`) plus read/write discipline for site and ACF exports. Root `CLAUDE.md` requires it to pass before any JSON is delivered. |
+| `modern-web-standards` | ACSS 4.x alignment and a dated CSS/HTML feature-tier table. Governs the CSS inside custom classes and `_cssCustom`. Note: the files in this folder were written against ACSS 3.x; 3.x and 4.x are not compatible. |
